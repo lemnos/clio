@@ -29,7 +29,7 @@ int own_primary = 0;
 int debug = 0;
 
 static inline Atom intern(char *name) {
-    Atom a = XInternAtom(dpy, name, True);
+    Atom a = XInternAtom(dpy, name, False);
     if(a == None) {
         fprintf(stderr, "X11 ERROR: Failed to intern atom: %s\n", name);
         exit(1);
