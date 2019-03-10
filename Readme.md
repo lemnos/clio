@@ -4,11 +4,11 @@
 
 # Features
 
- - Minimal: Command line oriented, no GTK/QT required.
- - Keeps the various X11 selections in sync.
+ - Minimal: CLI oriented, no GTK/QT required.
+ - Keeps the CLIPBOARD and PRIMARY X11 selections in sync.
  - Supports unicode.
- - Records all copied items.
- - Unixy: Copies STDIN directly into the clipboard for easy integration.
+ - Keeps track of all recorded items.
+ - UNIXy: Copies STDIN to the clipboard and can print clipboard contents (e.g clio -p0)
 
 # Usage
 

@@ -313,6 +313,15 @@ ssize_t read_stdin(char **res) {
 
 int main(int argc, char *argv[]) {
     int sd, c;
+    const char usage[] = "Usage: %s [-a <num>] [-n <num>] [-l] [-d] [-v]\n\n"
+        "-l: Lists all pastables by number (from most to least recent).\n"
+        "  Multiline pastables are truncated.\n"
+        "-a <num>: Activates pastable number <num>, this moves it to the top of history\n"
+        "  and allows it to be pasted.\n"
+        "-p <num>: Prints pastable number <num> in its entirety.\n"
+        "-c: Removes all pastables from memory.\n"
+        "-d: Starts the daemon.\n"
+        "-v: Prints version info.\n";
 
     umask(0077);
     snprintf(SERVER_SOCKET, sizeof(SERVER_SOCKET), "%s/.clio/server.socket", getenv("HOME"));
@@ -333,13 +342,17 @@ int main(int argc, char *argv[]) {
         debug++;
     }
 
-    while((c=getopt(argc, argv, "dp:la:vcn:")) != -1) {
+    while((c=getopt(argc, argv, "hdp:la:vc")) != -1) {
         int sd;
 
-        if (c == 'd') return start_server(SERVER_SOCKET);
-
-        if (c == 'v') {
+        switch(c) {
+        case 'd':
+            return start_server(SERVER_SOCKET);
+        case 'v':
             fprintf(stderr, "Author: Aetnaeus\nVersion: "VERSION"\nGit Commit: "GIT_COMMIT"\n");
+            return 0;
+        case 'h':
+            fprintf(stderr, usage, argv[0]);
             return 0;
         }
 
@@ -347,24 +360,16 @@ int main(int argc, char *argv[]) {
             die("ERROR: Failed to connect to %s. (make sure daemon is running (clio -d)).\n", SERVER_SOCKET);
 
         switch(c) {
-            case 'c': client_clear_history(sd); break;
-            case 'p': client_print_history(sd, atoi(optarg)); break;
-            case 'a': client_activate(sd, atoi(optarg)); break;
-            case 'l': client_print_history(sd, -1); break;
+        case 'c': client_clear_history(sd); break;
+        case 'p': client_print_history(sd, atoi(optarg)); break;
+        case 'a': client_activate(sd, atoi(optarg)); break;
+        case 'l': client_print_history(sd, -1); break;
         }
 
         return 0;
     }
 
-    fprintf(stderr, "Usage: %s [-a <num>] [-n <num>] [-l] [-d] [-v]\n\n"
-            "-l: Lists all pastables by number (from most to least recent).\n"
-            "  Multiline pastables are truncated.\n"
-            "-a <num>: Activates pastable number <num>, this moves it to the top of history\n"
-            "  and allows it to be pasted.\n"
-            "-p <num>: Prints pastable number <num> in its entirety.\n"
-            "-c: Removes all pastables from memory.\n"
-            "-d: Starts the daemon.\n"
-            "-v: Prints version info.\n", argv[0]);
+    fprintf(stderr, usage, argv[0]);
 
     return -1;
 }
