@@ -21,6 +21,7 @@
 
 #define dbg(...) if(debug) fprintf(stderr, __VA_ARGS__);
 char SERVER_SOCKET[PATH_MAX];
+char SERVER_SOCKET_DIR[PATH_MAX];
 Display *dpy;
 Window win;
 Atom XA_UTF8, XA_CLIPBOARD, XA_TARGETS;
@@ -324,7 +325,9 @@ int main(int argc, char *argv[]) {
         "-v: Prints version info.\n";
 
     umask(0077);
-    snprintf(SERVER_SOCKET, sizeof(SERVER_SOCKET), "%s/.clio/server.socket", getenv("HOME"));
+    snprintf(SERVER_SOCKET_DIR, sizeof(SERVER_SOCKET_DIR), "%s/.clio", getenv("HOME"));
+    mkdir(SERVER_SOCKET_DIR, 0700);
+    snprintf(SERVER_SOCKET, sizeof(SERVER_SOCKET), "%s/server.socket", SERVER_SOCKET_DIR);
 
     if(!isatty(0)) {
         char *content;

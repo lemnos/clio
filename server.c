@@ -66,7 +66,7 @@ int server_create(const char *path) {
     struct sockaddr_un addr;
 
     if((sd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-        perror("socket");
+        perror("server socket");
         exit(1);
     }
 
@@ -74,12 +74,12 @@ int server_create(const char *path) {
     strcpy(addr.sun_path, path);
 
     if(bind(sd, (struct sockaddr*)&addr, sizeof addr) == -1) {
-        perror("socket");
+        perror("binding server socket");
         exit(1);
     }
 
     if(listen(sd, 10) == -1) {
-        perror("socket");
+        perror("listening on server socket");
         exit(1);
     }
 
