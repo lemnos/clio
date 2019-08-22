@@ -329,7 +329,7 @@ int main(int argc, char *argv[]) {
     mkdir(SERVER_SOCKET_DIR, 0700);
     snprintf(SERVER_SOCKET, sizeof(SERVER_SOCKET), "%s/server.socket", SERVER_SOCKET_DIR);
 
-    if(!isatty(0)) {
+    if(!isatty(0) && argc == 1) {
         char *content;
         ssize_t sz = read_stdin(&content);
 
