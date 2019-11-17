@@ -21,7 +21,7 @@
 
 #define dbg(...) if(debug) fprintf(stderr, __VA_ARGS__);
 char SERVER_SOCKET[PATH_MAX];
-char SERVER_SOCKET_DIR[PATH_MAX];
+
 Display *dpy;
 Window win;
 Atom XA_UTF8, XA_CLIPBOARD, XA_TARGETS;
@@ -196,6 +196,7 @@ static int start_server() {
 
     signal(SIGTERM, cleanup);
     signal(SIGINT, cleanup);
+
     if(!access(SERVER_SOCKET, F_OK)) {
         int sd = client_connect(SERVER_SOCKET);
         if(sd == -1) {
@@ -314,6 +315,21 @@ ssize_t read_stdin(char **res) {
 
 int main(int argc, char *argv[]) {
     int sd, c;
+    const char *rundir = getenv("XDG_RUNTIME_DIR");
+    const char *display = getenv("DISPLAY");
+
+    if(!rundir) {
+        fprintf(stderr, "ERROR: XDG_RUNTIME_DIR is not set\n");
+        return -1;
+    }
+
+    if(!display) {
+        fprintf(stderr, "ERROR: DISPLAY is not set (make sure X is running)\n");
+        return -1;
+    }
+
+    sprintf(SERVER_SOCKET, "%s/clio_%s.socket", rundir, display);
+   
     const char usage[] = "Usage: %s [-a <num>] [-n <num>] [-l] [-d] [-v]\n\n"
         "-l: Lists all pastables by number (from most to least recent).\n"
         "  Multiline pastables are truncated.\n"
@@ -325,9 +341,6 @@ int main(int argc, char *argv[]) {
         "-v: Prints version info.\n";
 
     umask(0077);
-    snprintf(SERVER_SOCKET_DIR, sizeof(SERVER_SOCKET_DIR), "%s/.clio", getenv("HOME"));
-    mkdir(SERVER_SOCKET_DIR, 0700);
-    snprintf(SERVER_SOCKET, sizeof(SERVER_SOCKET), "%s/server.socket", SERVER_SOCKET_DIR);
 
     if(!isatty(0) && argc == 1) {
         char *content;
